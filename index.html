@@ -5,73 +5,62 @@
     <title>Family Tree</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Horizontal line for spouses */
-      .spouse-line {
-        position: absolute;
+      .person-card {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        min-width: 150px;
+        text-align: center;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      }
+      .couple-line {
         height: 2px;
         background-color: blue;
+        position: absolute;
         top: 50%;
-        left: 50%;
+        left: 0;
+        right: 0;
+        margin: auto;
+        z-index: -1;
       }
-
-      /* Vertical line from parent(s) to children */
       .parent-line {
         width: 2px;
         background-color: green;
-        margin: 0 auto;
         flex-shrink: 0;
       }
-
-      .couple-wrapper {
+      .generation-row {
         display: flex;
-        align-items: center;
-        gap: 16px;
-        position: relative;
-      }
-
-      .children-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 16px;
-      }
-
-      .child-row {
-        display: flex;
+        justify-content: center;
         gap: 24px;
-        position: relative;
         margin-top: 16px;
-      }
-
-      .person-card {
-        background-color: white;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 140px;
-        text-align: center;
+        position: relative;
       }
     </style>
   </head>
   <body
-    class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen flex flex-col items-center py-10"
+    class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen flex items-center justify-center"
   >
-    <div class="w-full max-w-5xl px-4 text-center">
-      <!-- Login / Logout -->
-      <div id="authContainer" class="mb-8">
-        <h1 class="text-3xl font-bold mb-6">🌳 Family Tree</h1>
-        <button
-          id="loginBtn"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg mb-4"
-        >
-          Login with Google
-        </button>
+    <!-- Login Page -->
+    <div id="loginContainer" class="text-center">
+      <h1 class="text-4xl font-bold mb-6">🌳 Family Tree</h1>
+      <button
+        id="loginBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg"
+      >
+        Login with Google
+      </button>
+    </div>
+
+    <!-- App Page -->
+    <div id="appContainer" class="hidden w-full max-w-6xl px-4 flex flex-col">
+      <!-- Top Bar -->
+      <div
+        class="flex justify-between items-center py-4 mb-4 bg-white rounded-lg shadow px-4"
+      >
+        <div id="userName" class="font-semibold text-lg"></div>
         <button
           id="logoutBtn"
-          class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg text-lg hidden"
+          class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
         >
           Logout
         </button>

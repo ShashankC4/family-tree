@@ -2,9 +2,11 @@ import { auth, provider, db } from "./firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// DOM elements
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const loginContainer = document.getElementById("loginContainer");
+const appContainer = document.getElementById("appContainer");
+const userName = document.getElementById("userName");
 const treeContainer = document.getElementById("treeContainer");
 
 let renderedPeople = new Set();
@@ -26,7 +28,7 @@ async function renderTree() {
   const people = {};
   snapshot.forEach(doc => people[doc.id] = { id: doc.id, ...doc.data() });
 
-  // Find roots (people with no parents)
+  // Find roots (people without parents)
   const roots = Object.values(people).filter(p => !p.parentIds || p.parentIds.length === 0);
 
   treeContainer.innerHTML = "";
@@ -46,10 +48,10 @@ function renderPerson(person, people, container) {
     : person.dob || "";
   card.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${person.name}</h2>${dobText ? `<p class="text-gray-500 text-sm">${dobText}</p>` : ""}`;
 
-  // Couple
+  // Spouse
   let spouse = person.spouseId ? people[person.spouseId] : null;
   let coupleWrapper = document.createElement("div");
-  coupleWrapper.className = "couple-wrapper";
+  coupleWrapper.className = "generation-row";
 
   coupleWrapper.appendChild(card);
 
@@ -63,11 +65,10 @@ function renderPerson(person, people, container) {
     spouseCard.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${spouse.name}</h2>${spouseDob ? `<p class="text-gray-500 text-sm">${spouseDob}</p>` : ""}`;
     coupleWrapper.appendChild(spouseCard);
 
-    // Blue line connecting spouses
+    // Blue line for spouses
     const line = document.createElement("div");
-    line.className = "spouse-line";
-    line.style.width = "16px";
-    coupleWrapper.insertBefore(line, spouseCard);
+    line.className = "couple-line";
+    coupleWrapper.appendChild(line);
   }
 
   container.appendChild(coupleWrapper);
@@ -79,21 +80,19 @@ function renderPerson(person, people, container) {
 
   if (children.length) {
     const childrenWrapper = document.createElement("div");
-    childrenWrapper.className = "children-wrapper";
+    childrenWrapper.className = "children-wrapper flex flex-col items-center mt-2";
 
-    // Vertical green line
+    // Green line to children
     const vLine = document.createElement("div");
     vLine.className = "parent-line";
-    vLine.style.height = "20px";
+    vLine.style.height = "24px";
     childrenWrapper.appendChild(vLine);
 
-    // Child row
-    const childRow = document.createElement("div");
-    childRow.className = "child-row";
+    const siblingRow = document.createElement("div");
+    siblingRow.className = "generation-row";
+    children.forEach(child => renderPerson(child, people, siblingRow));
 
-    children.forEach(child => renderPerson(child, people, childRow));
-    childrenWrapper.appendChild(childRow);
-
+    childrenWrapper.appendChild(siblingRow);
     container.appendChild(childrenWrapper);
   }
 }
@@ -101,12 +100,13 @@ function renderPerson(person, people, container) {
 // -------- Auth State --------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
+    loginContainer.classList.add("hidden");
+    appContainer.classList.remove("hidden");
+    userName.textContent = user.displayName || user.email;
     await renderTree();
   } else {
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
+    loginContainer.classList.remove("hidden");
+    appContainer.classList.add("hidden");
     treeContainer.innerHTML = "";
     renderedPeople.clear();
   }
