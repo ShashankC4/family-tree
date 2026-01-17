@@ -18,15 +18,14 @@ loginBtn.addEventListener("click", async () => {
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
-  cardsContainer.innerHTML = "";   // Clear people
+  cardsContainer.innerHTML = ""; // Clear displayed people
 });
 
 // -------- Render People --------
 async function renderPeople() {
-  const peopleCol = collection(db, "people");
-  const snapshot = await getDocs(peopleCol);
+  const snapshot = await getDocs(collection(db, "people"));
 
-  // Build map of ID -> name for parent lookup
+  // Build map of docId -> name
   const peopleMap = {};
   snapshot.forEach(doc => {
     peopleMap[doc.id] = doc.data().name;
@@ -38,17 +37,16 @@ async function renderPeople() {
     const data = doc.data();
     const dobText = data.dob || "";
 
-    // Resolve parent names
     const parentsText = data.parentIds?.length
       ? "Parent(s): " + data.parentIds.map(pid => peopleMap[pid] || "Unknown").join(", ")
       : "";
 
     const card = document.createElement("div");
-    card.className = "bg-white rounded-xl shadow-md p-4";
+    card.className = "bg-white rounded-xl shadow-lg p-4 hover:scale-105 transition transform duration-200";
     card.innerHTML = `
-      <h2 class="font-semibold text-lg text-gray-800">${data.name}</h2>
-      ${dobText ? `<p class="text-gray-500 text-sm mb-1">DOB: ${dobText}</p>` : ""}
-      ${parentsText ? `<p class="text-gray-700 text-sm">${parentsText}</p>` : ""}
+      <h2 class="font-semibold text-lg text-gray-800 mb-2">${data.name}</h2>
+      ${dobText ? `<p class="text-gray-500 text-sm mb-1"><span class="font-semibold">DOB:</span> ${dobText}</p>` : ""}
+      ${parentsText ? `<p class="text-gray-700 text-sm"><span class="font-semibold">Parent(s):</span> ${parentsText}</p>` : ""}
     `;
     cardsContainer.appendChild(card);
   });
