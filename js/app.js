@@ -39,11 +39,11 @@ async function renderPeople() {
     // Convert Firestore Timestamp to readable date
     let dobText = "";
     if (data.dob) {
-      if (data.dob instanceof Timestamp) {
-        dobText = data.dob.toDate().toLocaleDateString(); // e.g., 17/1/2026
-      } else {
-        dobText = data.dob; // in case it is already a string
-      }
+        if (data.dob instanceof Timestamp) {
+            dobText = data.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+        } else {
+            dobText = data.dob; // in case it is already a string
+        }
     }
 
     const parentsText = data.parentIds?.length
