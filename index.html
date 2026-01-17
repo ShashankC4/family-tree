@@ -33,17 +33,66 @@
       </div>
 
       <!-- Main Content -->
-      <div class="bg-white rounded-xl shadow-md p-8 text-gray-600 text-center">
+      <div
+        class="bg-white rounded-xl shadow-md p-8 text-gray-600 text-center mb-6"
+      >
         <p id="appStatus" class="text-lg">
           Please login to manage your family tree
         </p>
-      </div>
-    </div>
 
-    <div
-      id="cardsContainer"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8"
-    ></div>
+        <!-- Add Person Button -->
+        <button
+          id="addPersonBtn"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm hidden mt-4"
+        >
+          + Add Person
+        </button>
+      </div>
+
+      <!-- Add Person Form (hidden by default) -->
+      <div
+        id="addPersonForm"
+        class="hidden bg-white rounded-xl shadow-md p-6 mb-6"
+      >
+        <input
+          type="text"
+          id="personName"
+          placeholder="Name"
+          class="border p-2 rounded w-full mb-2"
+        />
+        <input
+          type="date"
+          id="personDob"
+          placeholder="DOB"
+          class="border p-2 rounded w-full mb-2"
+        />
+        <textarea
+          id="personNotes"
+          placeholder="Notes"
+          class="border p-2 rounded w-full mb-2"
+        ></textarea>
+
+        <label class="block mb-1 font-semibold">Select Parent(s)</label>
+        <select
+          id="personParents"
+          multiple
+          class="border p-2 rounded w-full mb-2"
+        ></select>
+
+        <button
+          id="savePersonBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+        >
+          Save
+        </button>
+      </div>
+
+      <!-- Cards Container -->
+      <div
+        id="cardsContainer"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8"
+      ></div>
+    </div>
 
     <script type="module" src="./js/firebase.js"></script>
     <script type="module" src="./js/app.js"></script>
