@@ -5,7 +5,6 @@ import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/f
 // DOM elements
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const appStatus = document.getElementById("appStatus");
 const cardsContainer = document.getElementById("cardsContainer");
 
 // -------- Login / Logout --------
@@ -14,14 +13,12 @@ loginBtn.addEventListener("click", async () => {
     await signInWithPopup(auth, provider);
   } catch (err) {
     console.error(err);
-    alert("Login failed");
   }
 });
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   cardsContainer.innerHTML = "";   // Clear people
-  appStatus.textContent = "";
 });
 
 // -------- Render People --------
@@ -62,15 +59,10 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
-    appStatus.textContent = "Logged in";
-
     await renderPeople();
-
   } else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     cardsContainer.innerHTML = "";
-    appStatus.textContent = "You are not logged in";
-    alert("You are not logged in");
   }
 });
