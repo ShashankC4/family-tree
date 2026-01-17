@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 import { auth, provider, db } from "./firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -138,4 +139,5 @@ onAuthStateChanged(auth, async (user) => {
     appStatus.textContent = "Not logged in";
     addPersonBtn.classList.add("hidden");
   }
+});
 });
