@@ -2,14 +2,13 @@ import { auth, provider, db } from "./firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// DOM elements
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const loginContainer = document.getElementById("loginContainer");
-const appContainer = document.getElementById("appContainer");
+const authContainer = document.getElementById("authContainer");
+const topBar = document.getElementById("topBar");
 const userName = document.getElementById("userName");
 const treeContainer = document.getElementById("treeContainer");
-
-let renderedPeople = new Set();
 
 // -------- Login / Logout --------
 loginBtn.addEventListener("click", async () => {
@@ -19,7 +18,8 @@ loginBtn.addEventListener("click", async () => {
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   treeContainer.innerHTML = "";
-  renderedPeople.clear();
+  authContainer.classList.remove("hidden");
+  topBar.classList.add("hidden");
 });
 
 // -------- Render Tree --------
@@ -28,86 +28,95 @@ async function renderTree() {
   const people = {};
   snapshot.forEach(doc => people[doc.id] = { id: doc.id, ...doc.data() });
 
-  // Find roots (people without parents)
-  const roots = Object.values(people).filter(p => !p.parentIds || p.parentIds.length === 0);
+  // Find roots using start === true
+  const roots = Object.values(people).filter(p => p.start === true);
 
   treeContainer.innerHTML = "";
-  renderedPeople.clear();
-  roots.forEach(root => renderPerson(root, people, treeContainer));
+  const rendered = new Set();
+
+  roots.forEach(root => renderPerson(root, people, treeContainer, rendered));
 }
 
-function renderPerson(person, people, container) {
-  if (renderedPeople.has(person.id)) return;
-  renderedPeople.add(person.id);
+function renderPerson(person, people, container, rendered) {
+  if (rendered.has(person.id)) return;
+  rendered.add(person.id);
 
-  // Person card
-  const card = document.createElement("div");
-  card.className = "person-card";
-  const dobText = person.dob instanceof Timestamp
-    ? person.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-    : person.dob || "";
-  card.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${person.name}</h2>${dobText ? `<p class="text-gray-500 text-sm">${dobText}</p>` : ""}`;
+  const card = createCard(person);
 
   // Spouse
   let spouse = person.spouseId ? people[person.spouseId] : null;
   let coupleWrapper = document.createElement("div");
-  coupleWrapper.className = "generation-row";
+  coupleWrapper.className = "flex flex-col items-center";
 
-  coupleWrapper.appendChild(card);
+  if (spouse && !rendered.has(spouse.id)) {
+    rendered.add(spouse.id);
+    const spouseCard = createCard(spouse);
+    const coupleRow = document.createElement("div");
+    coupleRow.className = "flex items-center";
 
-  if (spouse) {
-    renderedPeople.add(spouse.id);
-    const spouseCard = document.createElement("div");
-    spouseCard.className = "person-card";
-    const spouseDob = spouse.dob instanceof Timestamp
-      ? spouse.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-      : spouse.dob || "";
-    spouseCard.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${spouse.name}</h2>${spouseDob ? `<p class="text-gray-500 text-sm">${spouseDob}</p>` : ""}`;
-    coupleWrapper.appendChild(spouseCard);
+    coupleRow.appendChild(card);
+    // Blue line between spouses
+    const spouseLine = document.createElement("div");
+    spouseLine.className = "spouse-line";
+    coupleRow.appendChild(spouseLine);
 
-    // Blue line for spouses
-    const line = document.createElement("div");
-    line.className = "couple-line";
-    coupleWrapper.appendChild(line);
+    coupleRow.appendChild(spouseCard);
+    coupleWrapper.appendChild(coupleRow);
+  } else {
+    coupleWrapper.appendChild(card);
   }
 
   container.appendChild(coupleWrapper);
 
   // Children
   const children = Object.values(people).filter(
-    p => Array.isArray(p.parentIds) && p.parentIds.includes(person.id)
+    c => Array.isArray(c.parentId) && c.parentId.includes(person.id)
   );
 
   if (children.length) {
     const childrenWrapper = document.createElement("div");
-    childrenWrapper.className = "children-wrapper flex flex-col items-center mt-2";
+    childrenWrapper.className = "flex flex-col items-center mt-4 space-y-2";
 
-    // Green line to children
-    const vLine = document.createElement("div");
-    vLine.className = "parent-line";
-    vLine.style.height = "24px";
-    childrenWrapper.appendChild(vLine);
+    // Green line down to children
+    const lineDiv = document.createElement("div");
+    lineDiv.className = "tree-line";
+    childrenWrapper.appendChild(lineDiv);
 
-    const siblingRow = document.createElement("div");
-    siblingRow.className = "generation-row";
-    children.forEach(child => renderPerson(child, people, siblingRow));
+    const childRow = document.createElement("div");
+    childRow.className = "flex gap-6 mt-2";
 
-    childrenWrapper.appendChild(siblingRow);
+    children.forEach(child => renderPerson(child, people, childRow, rendered));
+
+    childrenWrapper.appendChild(childRow);
     container.appendChild(childrenWrapper);
   }
+}
+
+function createCard(person) {
+  let dobText = "";
+  if (person.dob instanceof Timestamp) {
+    dobText = person.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  } else dobText = person.dob || "";
+
+  const card = document.createElement("div");
+  card.className = "tree-card";
+  card.innerHTML = `
+    <h2 class="font-semibold text-gray-800">${person.name}</h2>
+    ${dobText ? `<p class="text-gray-500 text-sm">${dobText}</p>` : ""}
+  `;
+  return card;
 }
 
 // -------- Auth State --------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    loginContainer.classList.add("hidden");
-    appContainer.classList.remove("hidden");
+    authContainer.classList.add("hidden");
+    topBar.classList.remove("hidden");
     userName.textContent = user.displayName || user.email;
     await renderTree();
   } else {
-    loginContainer.classList.remove("hidden");
-    appContainer.classList.add("hidden");
+    authContainer.classList.remove("hidden");
+    topBar.classList.add("hidden");
     treeContainer.innerHTML = "";
-    renderedPeople.clear();
   }
 });
