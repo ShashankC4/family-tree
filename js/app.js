@@ -34,71 +34,67 @@ async function renderTree() {
 const renderedPeople = new Set();
 
 function renderPerson(person, people, container) {
-  if (renderedPeople.has(person.id)) return; // skip already rendered
+  if (renderedPeople.has(person.id)) return;
   renderedPeople.add(person.id);
 
+  // Create parent card
   const card = document.createElement("div");
   card.className = "bg-white rounded-xl shadow-md p-4 flex flex-col items-center";
-
-  let dobText = "";
-  if (person.dob instanceof Timestamp) {
-    dobText = person.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  } else {
-    dobText = person.dob || "";
-  }
-
+  const dobText = person.dob instanceof Timestamp
+    ? person.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : person.dob || "";
   card.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${person.name}</h2>${dobText ? `<p class="text-gray-500 text-sm">${dobText}</p>` : ""}`;
 
-  // Spouse
+  // Handle spouse
   let spouse = person.spouseId ? people[person.spouseId] : null;
+  let coupleContainer = document.createElement("div");
+  coupleContainer.className = "couple-wrapper";
+
+  coupleContainer.appendChild(card);
+
   if (spouse) {
-    renderedPeople.add(spouse.id); // mark spouse as rendered
+    renderedPeople.add(spouse.id);
     const spouseCard = document.createElement("div");
-    spouseCard.className = "bg-white rounded-xl shadow-md p-4 flex flex-col items-center ml-4";
-
-    let spouseDob = "";
-    if (spouse.dob instanceof Timestamp) {
-      spouseDob = spouse.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-    } else spouseDob = spouse.dob || "";
-
+    spouseCard.className = "bg-white rounded-xl shadow-md p-4 flex flex-col items-center";
+    const spouseDob = spouse.dob instanceof Timestamp
+      ? spouse.dob.toDate().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+      : spouse.dob || "";
     spouseCard.innerHTML = `<h2 class="font-semibold text-lg text-gray-800">${spouse.name}</h2>${spouseDob ? `<p class="text-gray-500 text-sm">${spouseDob}</p>` : ""}`;
 
-    const coupleWrapper = document.createElement("div");
-    coupleWrapper.className = "flex items-center";
-    coupleWrapper.appendChild(card);
-    coupleWrapper.appendChild(spouseCard);
+    coupleContainer.appendChild(spouseCard);
 
+    // Add horizontal line between spouses
     const line = document.createElement("div");
     line.className = "spouse-line";
-    coupleWrapper.appendChild(line);
-
-    container.appendChild(coupleWrapper);
-  } else {
-    container.appendChild(card);
+    coupleContainer.insertBefore(line, spouseCard); // line between the two
   }
 
-  // Children
+  container.appendChild(coupleContainer);
+
+  // Find children
   const children = Object.values(people).filter(
     p => Array.isArray(p.parentIds) && p.parentIds.includes(person.id)
   );
 
   if (children.length) {
     const childrenWrapper = document.createElement("div");
-    childrenWrapper.className = "flex flex-col items-center mt-2 space-y-2";
+    childrenWrapper.className = "children-wrapper";
 
-    const lineDiv = document.createElement("div");
-    lineDiv.className = "tree-line";
-    childrenWrapper.appendChild(lineDiv);
+    // Vertical line from couple to children
+    const parentLine = document.createElement("div");
+    parentLine.className = "tree-line";
+    childrenWrapper.appendChild(parentLine);
 
-    const childCardsWrapper = document.createElement("div");
-    childCardsWrapper.className = "flex gap-4 mt-2";
+    const childRow = document.createElement("div");
+    childRow.className = "child-row";
 
-    children.forEach(child => renderPerson(child, people, childCardsWrapper));
+    children.forEach(child => renderPerson(child, people, childRow));
+    childrenWrapper.appendChild(childRow);
 
-    childrenWrapper.appendChild(childCardsWrapper);
     container.appendChild(childrenWrapper);
   }
 }
+
 
 // -------- Auth State --------
 onAuthStateChanged(auth, async (user) => {
