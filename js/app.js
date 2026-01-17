@@ -1,8 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
   import { auth, provider, db } from "./firebase.js";
   import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+document.addEventListener("DOMContentLoaded", () => {
   // DOM elements
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
