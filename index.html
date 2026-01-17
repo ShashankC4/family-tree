@@ -5,62 +5,59 @@
     <title>Family Tree</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Vertical line for children */
-      .tree-line {
-        width: 2px;
-        background-color: green;
-        flex-shrink: 0;
-        height: 20px;
-        margin: 0 auto;
+      .person-card {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        min-width: 140px;
+        text-align: center;
       }
 
-      /* Horizontal line for spouses */
-      .spouse-line {
-        height: 2px;
-        background-color: blue;
-        flex-grow: 1;
-        align-self: center;
-      }
-
-      /* Couple wrapper flex */
       .couple-wrapper {
         display: flex;
         align-items: center;
         gap: 16px;
         position: relative;
+        margin-bottom: 8px;
       }
 
-      /* Children wrapper */
+      .spouse-line {
+        height: 2px;
+        background-color: blue;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: calc(100% - 140px);
+      }
+
       .children-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 8px;
+        margin-top: 16px;
       }
 
-      /* Row of child cards */
-      .child-row {
-        display: flex;
-        gap: 16px;
-        margin-top: 8px;
-        position: relative;
-      }
-
-      /* Line connecting parent to children */
-      .parent-connector {
-        position: absolute;
-        top: -10px;
-        left: 50%;
+      .parent-line {
         width: 2px;
-        height: 10px;
         background-color: green;
+        flex-shrink: 0;
+      }
+
+      .sibling-row {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+        justify-content: center;
       }
     </style>
   </head>
   <body
-    class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen flex items-center justify-center"
+    class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen flex flex-col items-center py-10"
   >
-    <div class="w-full max-w-5xl px-4 text-center">
+    <div class="w-full max-w-6xl px-4 text-center">
       <!-- Login / Logout -->
       <div id="authContainer" class="mb-8">
         <h1 class="text-3xl font-bold mb-6">🌳 Family Tree</h1>
@@ -78,11 +75,8 @@
         </button>
       </div>
 
-      <!-- Family Tree -->
-      <div
-        id="treeContainer"
-        class="flex flex-col items-center space-y-6"
-      ></div>
+      <!-- Tree Container -->
+      <div id="treeContainer" class="flex flex-col items-center"></div>
     </div>
 
     <script type="module" src="./js/app.js"></script>
