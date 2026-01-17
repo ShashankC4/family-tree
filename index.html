@@ -4,11 +4,23 @@
     <meta charset="UTF-8" />
     <title>Family Tree</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .tree-line {
+        border-left: 2px solid green;
+        height: 20px;
+        margin: 0 auto;
+      }
+      .spouse-line {
+        border-top: 2px solid blue;
+        height: 2px;
+        margin: 0 -4px;
+      }
+    </style>
   </head>
   <body
     class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen flex items-center justify-center"
   >
-    <div class="w-full max-w-3xl px-4 text-center">
+    <div class="w-full max-w-5xl px-4 text-center">
       <!-- Login / Logout -->
       <div id="authContainer" class="mb-8">
         <h1 class="text-3xl font-bold mb-6">🌳 Family Tree</h1>
@@ -26,10 +38,10 @@
         </button>
       </div>
 
-      <!-- People list -->
+      <!-- Family Tree -->
       <div
-        id="cardsContainer"
-        class="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        id="treeContainer"
+        class="flex flex-col items-center space-y-6"
       ></div>
     </div>
 
