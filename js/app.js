@@ -1,6 +1,6 @@
 import { auth, provider, db } from "./firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // DOM elements
 const loginBtn = document.getElementById("loginBtn");
@@ -35,7 +35,16 @@ async function renderPeople() {
 
   snapshot.forEach(doc => {
     const data = doc.data();
-    const dobText = data.dob || "";
+
+    // Convert Firestore Timestamp to readable date
+    let dobText = "";
+    if (data.dob) {
+      if (data.dob instanceof Timestamp) {
+        dobText = data.dob.toDate().toLocaleDateString(); // e.g., 17/1/2026
+      } else {
+        dobText = data.dob; // in case it is already a string
+      }
+    }
 
     const parentsText = data.parentIds?.length
       ? "Parent(s): " + data.parentIds.map(pid => peopleMap[pid] || "Unknown").join(", ")
