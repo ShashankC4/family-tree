@@ -2,8 +2,6 @@ import { auth, provider, db } from "./firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-
 // DOM elements
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -16,6 +14,7 @@ loginBtn.addEventListener("click", async () => {
     await signInWithPopup(auth, provider);
   } catch (err) {
     console.error(err);
+    alert("Login failed");
   }
 });
 
@@ -30,7 +29,7 @@ async function renderPeople() {
   const peopleCol = collection(db, "people");
   const snapshot = await getDocs(peopleCol);
 
-  // Build map of ID -> name
+  // Build map of ID -> name for parent lookup
   const peopleMap = {};
   snapshot.forEach(doc => {
     peopleMap[doc.id] = doc.data().name;
@@ -74,6 +73,4 @@ onAuthStateChanged(auth, async (user) => {
     appStatus.textContent = "You are not logged in";
     alert("You are not logged in");
   }
-});
-
 });
